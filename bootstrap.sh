@@ -23,6 +23,27 @@ pacman-key --init
 # On VM images make sure we have the keyring populated.
 pacman-key --populate
 
+# Configure CachyOS package signing
+pacman-key --recv-keys F3B607488DB35A47 --keyserver keyserver.ubuntu.com
+pacman-key --lsign-key F3B607488DB35A47
+
+# Install CachyOS signing keyring and mirrorlist
+CACHYOS_MIRROR="https://mirror.cachyos.org/repo/x86_64/cachyos"
+
+pacman -U --noconfirm \
+    "${CACHYOS_MIRROR}/cachyos-keyring-20240331-1-any.pkg.tar.zst" \
+    "${CACHYOS_MIRROR}/cachyos-mirrorlist-27-1-any.pkg.tar.zst"
+
+# Enable the CachyOS repository in the build container.
+if ! grep -q '^\[cachyos\]$' /etc/pacman.conf; then
+    cat >> /etc/pacman.conf <<'EOF'
+
+[cachyos]
+SigLevel = PackageRequired
+Include = /etc/pacman.d/cachyos-mirrorlist
+EOF
+fi
+
 # Restore the pacman.conf file from the pacman package. The docker one is crippled with NoExtract options and the like :(
 #  --refresh twice to force a refresh
 mkdir /tmp/pacman

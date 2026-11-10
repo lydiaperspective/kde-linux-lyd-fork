@@ -63,13 +63,21 @@ LIVE_EFI=${EFI_BASE}.efi   # Name of live UKI in the ESP (no tries counter — E
 # Clean up old build artifacts.
 rm --recursive --force kde-linux.cache/*.raw kde-linux.cache/*.iso kde-linux.cache/*.mnt
 
-cat /etc/pacman.conf.nolinux >> mkosi.sandbox/etc/pacman.conf
+# Start with the KDE Linux pacman configuration.
+cp /etc/pacman.conf.nolinux mkosi.sandbox/etc/pacman.conf
 
-# Enable multilib; we need it later for steam-devices
-cat <<EOF >> mkosi.sandbox/etc/pacman.conf
+# Enable multilib and CachyOS.
+cat >> mkosi.sandbox/etc/pacman.conf <<'EOF'
+
 [multilib]
 Include = /etc/pacman.d/mirrorlist
+
+[cachyos]
+SigLevel = Never
+Include = /etc/pacman.d/cachyos-mirrorlist
 EOF
+
+# Create the pacman mirror directory.
 
 mkdir --parents mkosi.sandbox/etc/pacman.d
 # Ensure the base image does not go out of sync with the Arch snapshot used to build packages.
@@ -79,7 +87,15 @@ if [ -z "$BUILD_REPO" ]; then
   echo "ERROR: Could not fetch build_repo.txt — refusing to build out-of-sync image." >&2
   exit 1
 fi
-echo "Server = ${BUILD_REPO}/\$repo/os/\$arch" > mkosi.sandbox/etc/pacman.d/mirrorlist
+
+# Create the KDE-pinned Arch mirrorlist.
+echo "Server = ${BUILD_REPO}/\$repo/os/\$arch" \
+  > mkosi.sandbox/etc/pacman.d/mirrorlist
+
+# Copy the CachyOS mirrorlist installed by bootstrap.sh.
+cp /etc/pacman.d/cachyos-mirrorlist \
+   mkosi.sandbox/etc/pacman.d/cachyos-mirrorlist
+
 # ... and make sure our cache is up to date. Second --refresh forces a refresh.
 pacman --sync --refresh --refresh --noconfirm
 
@@ -228,7 +244,7 @@ if [ $((iso_size % 2048)) -ne 0 ]; then
 fi
 
 # In case the owner is root
-chown -R user:user mkosi.output
+chown -R lydia:users mkosi.output
 
 # Create a torrent for the image
 ./torrent-create.rb "$VERSION" "$OUTPUT" "$ISO"
