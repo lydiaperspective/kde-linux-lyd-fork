@@ -24,7 +24,11 @@ pacman-key --init
 pacman-key --populate
 
 # Configure CachyOS package signing
-pacman-key --recv-keys F3B607488DB35A47 --keyserver keyserver.ubuntu.com
+#pacman-key --recv-keys F3B607488DB35A47 --keyserver keyserver.ubuntu.com
+#pacman-key --lsign-key F3B607488DB35A47
+
+# Configure CachyOS package signing over HTTPS (bypasses HKP port 11371 blocks)
+curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xF3B607488DB35A47" | pacman-key --add -
 pacman-key --lsign-key F3B607488DB35A47
 
 # Install CachyOS signing keyring and mirrorlist
