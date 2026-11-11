@@ -23,22 +23,32 @@ pacman-key --init
 # On VM images make sure we have the keyring populated.
 pacman-key --populate
 
-# Configure CachyOS package signing
-#pacman-key --recv-keys F3B607488DB35A47 --keyserver keyserver.ubuntu.com
-#pacman-key --lsign-key F3B607488DB35A47
-
-# Configure CachyOS package signing over HTTPS (bypasses HKP port 11371 blocks)
-curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xF3B607488DB35A47" | pacman-key --add -
-pacman-key --lsign-key F3B607488DB35A47
-
-# Install CachyOS signing keyring and mirrorlist
+# Configure CachyOS repository
 CACHYOS_MIRROR="https://mirror.cachyos.org/repo/x86_64/cachyos"
 
-pacman -U --noconfirm \
-    "${CACHYOS_MIRROR}/cachyos-keyring-20240331-1-any.pkg.tar.zst" \
-    "${CACHYOS_MIRROR}/cachyos-mirrorlist-27-1-any.pkg.tar.zst"
+# Download latest keyring and mirrorlist packages
+curl -4 -fsSL "${CACHYOS_MIRROR}/cachyos.db" \
+    -o /tmp/cachyos.db
 
-# Enable the CachyOS repository in the build container.
+# Extract latest package filenames from repository database
+CACHYOS_KEYRING=$(bsdtar -tf /tmp/cachyos.db | grep '^cachyos-keyring-[^/]*/desc$' | sort -V | tail -n 1 | sed 's|/desc||')
+CACHYOS_MIRRORLIST=$(bsdtar -tf /tmp/cachyos.db | grep '^cachyos-mirrorlist-[^/]*/desc$' | sort -V | tail -n 1 | sed 's|/desc||')
+
+# Download latest packages
+for PACKAGE in "$CACHYOS_KEYRING" "$CACHYOS_MIRRORLIST"; do
+    [ -n "$PACKAGE" ] || { echo "ERROR: Could not find CachyOS packages"; exit 1; }
+    curl -4 -fsSL "${CACHYOS_MIRROR}/${PACKAGE}.pkg.tar.zst" \
+        -o "/tmp/$(basename "$PACKAGE").pkg.tar.zst"
+done
+
+# Install packages
+pacman -U --noconfirm \
+    /tmp/cachyos-keyring-*.pkg.tar.zst \
+    /tmp/cachyos-mirrorlist-*.pkg.tar.zst
+
+rm -f /tmp/cachyos.db /tmp/cachyos-*.pkg.tar.zst
+
+# Enable CachyOS repository
 if ! grep -q '^\[cachyos\]$' /etc/pacman.conf; then
     cat >> /etc/pacman.conf <<'EOF'
 
