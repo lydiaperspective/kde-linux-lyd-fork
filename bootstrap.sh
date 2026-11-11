@@ -128,24 +128,6 @@ rm -f /tmp/cachyos.db \
     "/tmp/${CACHYOS_MIRRORLIST}" \
     "/tmp/${CACHYOS_MIRRORLIST}.sig"
 
-# --------------------------------------------------
-# Enable CachyOS repository
-# --------------------------------------------------
-
-if ! grep -q '^\[cachyos\]$' /etc/pacman.conf; then
-    cat >> /etc/pacman.conf <<'EOF'
-
-[cachyos]
-SigLevel = PackageRequired
-Include = /etc/pacman.d/cachyos-mirrorlist
-EOF
-fi
-
-# --------------------------------------------------
-# End CachyOS repository setup
-# --------------------------------------------------
-
-
 # Restore the pacman.conf file from the pacman package. The docker one is crippled with NoExtract options and the like :(
 #  --refresh twice to force a refresh
 mkdir /tmp/pacman
