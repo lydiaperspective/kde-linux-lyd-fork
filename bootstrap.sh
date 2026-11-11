@@ -26,25 +26,41 @@ pacman-key --populate
 # Configure CachyOS repository
 CACHYOS_MIRROR="https://mirror.cachyos.org/repo/x86_64/cachyos"
 
-# Download latest keyring and mirrorlist packages
+# Download latest CachyOS repository database
 curl -4 -fsSL "${CACHYOS_MIRROR}/cachyos.db" \
     -o /tmp/cachyos.db
 
-# Extract latest package filenames from repository database
-CACHYOS_KEYRING=$(bsdtar -tf /tmp/cachyos.db | grep '^cachyos-keyring-[^/]*/desc$' | sort -V | tail -n 1 | sed 's|/desc||')
-CACHYOS_MIRRORLIST=$(bsdtar -tf /tmp/cachyos.db | grep '^cachyos-mirrorlist-[^/]*/desc$' | sort -V | tail -n 1 | sed 's|/desc||')
+# Extract package filenames
+CACHYOS_KEYRING=$(bsdtar -tf /tmp/cachyos.db |
+    grep '^cachyos-keyring-[^/]*/desc$' |
+    sort -V | tail -n 1 | sed 's|/desc||')
 
-# Download latest packages
+CACHYOS_MIRRORLIST=$(bsdtar -tf /tmp/cachyos.db |
+    grep '^cachyos-mirrorlist-[^/]*/desc$' |
+    sort -V | tail -n 1 | sed 's|/desc||')
+
+# Download latest packages using the repository's package naming
 for PACKAGE in "$CACHYOS_KEYRING" "$CACHYOS_MIRRORLIST"; do
-    [ -n "$PACKAGE" ] || { echo "ERROR: Could not find CachyOS packages"; exit 1; }
-    curl -4 -fsSL "${CACHYOS_MIRROR}/${PACKAGE}.pkg.tar.zst" \
-        -o "/tmp/$(basename "$PACKAGE").pkg.tar.zst"
+    if [ -z "$PACKAGE" ]; then
+        echo "ERROR: Could not find CachyOS package." >&2
+        exit 1
+    fi
+
+    curl -4 -fSL \
+        "${CACHYOS_MIRROR}/${PACKAGE}.pkg.tar.zst" \
+        -o "/tmp/${PACKAGE}.pkg.tar.zst"
+
+    # Ensure the downloaded file is actually a package archive
+    bsdtar -tf "/tmp/${PACKAGE}.pkg.tar.zst" >/dev/null
 done
 
-# Install packages
+# Synchronize Arch package databases
+pacman -Sy --noconfirm
+
+# Install CachyOS packages
 pacman -U --noconfirm \
-    /tmp/cachyos-keyring-*.pkg.tar.zst \
-    /tmp/cachyos-mirrorlist-*.pkg.tar.zst
+    "/tmp/${CACHYOS_KEYRING}.pkg.tar.zst" \
+    "/tmp/${CACHYOS_MIRRORLIST}.pkg.tar.zst"
 
 rm -f /tmp/cachyos.db /tmp/cachyos-*.pkg.tar.zst
 
