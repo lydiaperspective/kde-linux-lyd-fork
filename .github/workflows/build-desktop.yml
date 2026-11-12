@@ -22,7 +22,7 @@ concurrency:
 jobs:
   build:
     # Self-hosted runner on the desktop. Only ever runs code from this repo's own branch.
-    runs-on: [self-hosted, lyd-fx]
+    runs-on: [self-hosted, lyd-opti]
     timeout-minutes: 360
     env:
       SIGN_GNUPGHOME: ${{ github.workspace }}/../.kde-signing-gnupg
