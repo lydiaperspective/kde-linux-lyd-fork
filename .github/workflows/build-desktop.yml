@@ -68,7 +68,7 @@ jobs:
 
           rm -rf mkosi.output
 
-          sudo -n ./build_docker.sh --podman
+          /run/wrappers/bin/sudo -n ./build_docker.sh --podman
 
       - name: Sign and publish to home server
         env:
