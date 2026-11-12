@@ -1,10 +1,13 @@
+
 name: Build desktop image
 
 on:
   push:
     branches: [nvidia580xx-legacy]
+
   schedule:
-    - cron: '0 7 * * 0'   # weekly, KDE's package snapshots move even when this repo doesn't
+    - cron: '0 7 * * 0' # Weekly, KDE package snapshots can change independently
+
   workflow_dispatch:
     inputs:
       upload_iso:
@@ -21,30 +24,56 @@ concurrency:
 
 jobs:
   build:
-    # Self-hosted runner on the desktop. Only ever runs code from this repo's own branch.
+    # Self-hosted runner on lyd-opti.
+    # Only runs code from this repository's own branch.
     runs-on: [self-hosted, lyd-opti]
+
     timeout-minutes: 360
+
     env:
-      SIGN_GNUPGHOME: ${{ github.workspace }}/../.kde-signing-gnupg
-      SIGN_KEY: ${{ vars.SIGN_KEY_FPR }}
-      DEST_BASE: ${{ vars.DEST_BASE }}
+      # Existing signing key imported from the old Podman volume.
+      SIGN_GNUPGHOME: /var/lib/github-runner/gnupg
+
+      # Host directory served by Caddy.
+      DEST: /srv/artifacts
+
+      # Retain the newest four builds.
+      KEEP: 2
+
     steps:
-      - uses: actions/checkout@v4.2.2
+      - name: Check out source
+        uses: actions/checkout@v4.2.2
         with:
           ref: nvidia580xx-legacy
-          clean: false   # keep kde-linux.cache / mkosi.output between runs to avoid re-downloading
+          clean: false # Keep build cache and downloaded sources between runs.
 
-      - name: Put the public signing key where the image build expects it
+      - name: Export public signing key
         run: |
+          set -euo pipefail
+
+          SIGN_KEY="$(cat "$SIGN_GNUPGHOME/signing-key-fingerprint")"
+
           mkdir -p .secure_files
-          GNUPGHOME="$SIGN_GNUPGHOME" gpg --export --armor "$SIGN_KEY" > .secure_files/gpg.public.key
+
+          gpg --homedir "$SIGN_GNUPGHOME" \
+            --batch \
+            --export --armor "$SIGN_KEY" \
+            > .secure_files/gpg.public.key
+
+          test -s .secure_files/gpg.public.key
 
       - name: Build image
         run: |
+          set -euo pipefail
+
           rm -rf mkosi.output
+
           sudo -n ./build_docker.sh --podman
 
       - name: Sign and publish to home server
         env:
           UPLOAD_ISO: ${{ inputs.upload_iso && '1' || '0' }}
-        run: .github/scripts/publish.sh
+        run: |
+          set -euo pipefail
+
+          .github/scripts/publish.sh
