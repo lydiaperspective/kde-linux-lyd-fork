@@ -184,6 +184,7 @@ VERSION=$(
 
 EFI="$OUT/kde-linux_${VERSION}.efi"
 CAIBX="$OUT/kde-linux_${VERSION}_root-x86-64.caibx"
+ISO="$OUT/kde-linux_${VERSION}.iso"
 
 for file in "$EFI" "$CAIBX"; do
     if [[ ! -f "$file" ]]; then
@@ -191,6 +192,12 @@ for file in "$EFI" "$CAIBX"; do
         exit 1
     fi
 done
+
+# Validate optional ISO before publishing anything.
+if [[ "$UPLOAD_ISO" == "1" && ! -f "$ISO" ]]; then
+    echo "ERROR: Requested ISO not found: $ISO" >&2
+    exit 1
+fi
 
 echo
 echo "Publishing KDE Linux version: $VERSION"
@@ -210,6 +217,11 @@ cp --reflink=auto \
     "$EFI" \
     "$CAIBX" \
     "$STAGE/"
+
+if [[ "$UPLOAD_ISO" == "1" ]]; then
+    echo "Staging ISO..."
+    cp --reflink=auto "$ISO" "$STAGE/"
+fi
 
 # ------------------------------------------------------------
 # Generate checksums
@@ -256,8 +268,39 @@ for file in \
     "kde-linux_${VERSION}_root-x86-64.caibx" \
     "kde-linux_${VERSION}_root-x86-64.erofs"
 do
-    install -m 0644 "$STAGE/$file" "$V2/$file"
+    mv -f "$STAGE/$file" "$V2/$file"
 done
+
+# ------------------------------------------------------------
+# Publish manifests
+# ------------------------------------------------------------
+
+echo "Publishing signed manifests..."
+
+install -m 0644 \
+    "$STAGE/SHA256SUMS" \
+    "$V2/SHA256SUMS.tmp"
+
+install -m 0644 \
+    "$STAGE/SHA256SUMS.gpg" \
+    "$V2/SHA256SUMS.gpg.tmp"
+
+# Publish signature first, manifest last.
+mv -f "$V2/SHA256SUMS.gpg.tmp" "$V2/SHA256SUMS.gpg"
+mv -f "$V2/SHA256SUMS.tmp" "$V2/SHA256SUMS"
+
+# ------------------------------------------------------------
+# Optional ISO publishing
+# ------------------------------------------------------------
+
+if [[ "$UPLOAD_ISO" == "1" ]]; then
+    mkdir -p "$ISO_DIR"
+
+    echo "Publishing ISO..."
+
+    mv -f "$STAGE/kde-linux_${VERSION}.iso" \
+        "$ISO_DIR/kde-linux_${VERSION}.iso"
+fi
 
 # ------------------------------------------------------------
 # Prune old versions
@@ -281,42 +324,6 @@ for old in "${VERSIONS[@]:$KEEP}"; do
         "$V2/kde-linux_${old}_root-x86-64.caibx" \
         "$V2/kde-linux_${old}_root-x86-64.erofs"
 done
-
-# ------------------------------------------------------------
-# Publish manifests LAST
-# ------------------------------------------------------------
-
-echo "Publishing signed manifests..."
-
-install -m 0644 \
-    "$STAGE/SHA256SUMS" \
-    "$V2/SHA256SUMS.tmp"
-
-install -m 0644 \
-    "$STAGE/SHA256SUMS.gpg" \
-    "$V2/SHA256SUMS.gpg.tmp"
-
-mv -f "$V2/SHA256SUMS.tmp" "$V2/SHA256SUMS"
-mv -f "$V2/SHA256SUMS.gpg.tmp" "$V2/SHA256SUMS.gpg"
-
-# ------------------------------------------------------------
-# Optional ISO publishing
-# ------------------------------------------------------------
-
-if [[ "$UPLOAD_ISO" == "1" ]]; then
-    ISO="$OUT/kde-linux_${VERSION}.iso"
-
-    if [[ ! -f "$ISO" ]]; then
-        echo "ERROR: Requested ISO not found: $ISO" >&2
-        exit 1
-    fi
-
-    mkdir -p "$ISO_DIR"
-
-    echo "Publishing ISO..."
-
-    install -m 0644 "$ISO" "$ISO_DIR/"
-fi
 
 # ------------------------------------------------------------
 # Finished
