@@ -1,0 +1,50 @@
+name: Build desktop image
+
+on:
+  push:
+    branches: [nvidia580xx-legacy]
+  schedule:
+    - cron: '0 7 * * 0'   # weekly, KDE's package snapshots move even when this repo doesn't
+  workflow_dispatch:
+    inputs:
+      upload_iso:
+        description: Also publish the ISO (large)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-desktop
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # Self-hosted runner on the desktop. Only ever runs code from this repo's own branch.
+    runs-on: [self-hosted, lyd-fx]
+    timeout-minutes: 360
+    env:
+      SIGN_GNUPGHOME: ${{ github.workspace }}/../.kde-signing-gnupg
+      SIGN_KEY: ${{ vars.SIGN_KEY_FPR }}
+      DEST_BASE: ${{ vars.DEST_BASE }}
+    steps:
+      - uses: actions/checkout@v4.2.2
+        with:
+          ref: nvidia580xx-legacy
+          clean: false   # keep kde-linux.cache / mkosi.output between runs to avoid re-downloading
+
+      - name: Put the public signing key where the image build expects it
+        run: |
+          mkdir -p .secure_files
+          GNUPGHOME="$SIGN_GNUPGHOME" gpg --export --armor "$SIGN_KEY" > .secure_files/gpg.public.key
+
+      - name: Build image
+        run: |
+          rm -rf mkosi.output
+          sudo -n ./build_docker.sh --podman
+
+      - name: Sign and publish to home server
+        env:
+          UPLOAD_ISO: ${{ inputs.upload_iso && '1' || '0' }}
+        run: .github/scripts/publish.sh
