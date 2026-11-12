@@ -122,6 +122,15 @@ rm --recursive --force kde-linux-sysupdated
 git clone https://invent.kde.org/kde-linux/kde-linux-sysupdated
 DESTDIR=$PWD/mkosi.extra make --directory=kde-linux-sysupdated install
 
+# Permanently mask the KDE Linux sysupdated socket.
+# This prevents systemd from starting it, including through socket activation.
+mkdir -p "$PWD/mkosi.extra/etc/systemd/system"
+
+ln -sfn /dev/null \
+    "$PWD/mkosi.extra/etc/systemd/system/kde-linux-sysupdated.socket"
+
+echo "==> Masked kde-linux-sysupdated.socket"
+
 rm --recursive --force etc-factory
 git clone https://invent.kde.org/kde-linux/etc-factory
 DESTDIR=$PWD/mkosi.extra make --directory=etc-factory install
