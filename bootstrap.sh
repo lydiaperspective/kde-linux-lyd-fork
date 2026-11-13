@@ -2,6 +2,9 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2024 Harald Sitter <sitter@kde.org>
 # SPDX-FileCopyrightText: 2024 Bruno Pajdek <brupaj@proton.me>
+# SPDX-FileCopyrightText: 2026 Lydia Hornbrook
+
+
 
 # Bootstraps an Arch Linux Docker container to be ready for building KDE Linux.
 
@@ -153,7 +156,7 @@ install -m 0644 \
 # Restore the pacman.conf file from the pacman package. The docker one is crippled with NoExtract options and the like :(
 #  --refresh twice to force a refresh
 mkdir /tmp/pacman
-pacman --sync --refresh --refresh --downloadonly --noconfirm pacman
+pacman --sync --refresh --refresh --downloadonly --nodeps --noconfirm pacman
 tar --extract --file "$(printf '%s\n' /var/cache/pacman/pkg/pacman-[0-9]*.pkg.tar.zst | sort -V | tail -n 1)" --directory /tmp/pacman
 cp /tmp/pacman/etc/pacman.conf /etc/pacman.conf
 
@@ -174,7 +177,7 @@ echo "Server = ${BUILD_REPO}/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
 
 # Update the system and install packages we'll need for building KDE Linux.
 #  --refresh twice to force a refresh
-pacman --sync --refresh --refresh --downloadonly --nodeps --nodeps --noconfirm pacman \
+pacman --sync --refresh --refresh --nodeps --noconfirm pacman \
     mkosi \
     arch-install-scripts \
     base-devel \
