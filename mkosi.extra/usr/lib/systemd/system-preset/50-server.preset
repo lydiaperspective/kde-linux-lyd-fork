@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: 2026 Lydia Hornbrook
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+enable tailscaled.service
+enable sshd.service
+enable cockpit.socket
+enable smb.service
+enable firewalld.service
+enable podman.socket
+enable podman-auto-update.timer

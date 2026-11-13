@@ -14,14 +14,9 @@ enable dbus-broker.service
 # fail to do so if the daemon is not up (avahi-browse for example just errors out instead of dbus-activating)
 enable avahi-daemon.service
 enable avahi-daemon.socket
-enable bluetooth.service
-enable cups.path
-enable cups.socket
 enable ModemManager.service
 enable NetworkManager.service
 enable pcscd.socket
-enable plasma-setup.service
-enable plasmalogin.service
 enable ratbagd.service
 enable snapper-cleanup.timer
 enable snapper-timeline.timer
