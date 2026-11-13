@@ -38,7 +38,7 @@ jobs:
       DEST: /srv/artifacts
 
       # Retain the newest four builds.
-      KEEP: 2
+      KEEP: 4
 
     steps:
       - name: Check out source

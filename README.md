@@ -4,7 +4,8 @@ SPDX-FileCopyrightText: Harald Sitter <sitter@kde.org>
 SPDX-FileCopyrightText: Nate Graham <nate@kde.org>
 -->
 
-<img width="256" height="256" alt="Logo" src="https://github.com/user-attachments/assets/aaada181-5441-4e7b-a6f2-086f9a7391da" />
+![Workstation Logo](logoWorkstation.svg)
+
 
 
 # KDE Linux
