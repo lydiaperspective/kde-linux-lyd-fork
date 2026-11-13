@@ -128,6 +128,28 @@ rm -f /tmp/cachyos.db \
     "/tmp/${CACHYOS_MIRRORLIST}" \
     "/tmp/${CACHYOS_MIRRORLIST}.sig"
 
+# --------------------------------------------------
+# End of CachyOS Repo install
+# --------------------------------------------------
+
+
+# --------------------------------------------------
+# Install Yay for aur packages
+# --------------------------------------------------
+echo "==> Building yay..."
+
+sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
+
+mkdir -p mkosi.extra/etc/kde-linux
+
+install -m 0644 \
+    aur-packages.conf \
+    mkosi.extra/etc/kde-linux/aur-packages.conf
+
+# --------------------------------------------------
+# End of install yay section
+# --------------------------------------------------
+
 # Restore the pacman.conf file from the pacman package. The docker one is crippled with NoExtract options and the like :(
 #  --refresh twice to force a refresh
 mkdir /tmp/pacman
@@ -152,7 +174,7 @@ echo "Server = ${BUILD_REPO}/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
 
 # Update the system and install packages we'll need for building KDE Linux.
 #  --refresh twice to force a refresh
-pacman --sync --refresh --refresh --noconfirm --sysupgrade \
+pacman --sync --refresh --refresh --downloadonly --nodeps --nodeps --noconfirm pacman \
     mkosi \
     arch-install-scripts \
     base-devel \
