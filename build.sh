@@ -244,7 +244,7 @@ if [ $((iso_size % 2048)) -ne 0 ]; then
 fi
 
 # In case the owner is root
-chown -R lydia:lydia mkosi.output
+chown -R lydia:users mkosi.output
 
 # Create a torrent for the image
 ./torrent-create.rb "$VERSION" "$OUTPUT" "$ISO"
