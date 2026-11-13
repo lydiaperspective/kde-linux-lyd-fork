@@ -5,6 +5,8 @@ SPDX-FileCopyrightText: Nate Graham <nate@kde.org>
 -->
 
 ![KDE Linux Logo](https://community.kde.org/images.community/7/7d/Kde-linux-logo.png)
+<img width="256" height="256" alt="Untitled" src="https://github.com/user-attachments/assets/affdf32b-d568-4678-9519-608a90b068d2" />
+
 
 # KDE Linux
 This is the repository for KDE Linux, codenamed "Project Banana": a KDE-owned general-purpose Linux®-based operating system.
