@@ -9,7 +9,7 @@ AppStream=https://autoconfig.kde.org/kde-linux/%W/org.kde.linux.metainfo.xml
 Type=url-file
 # %W is the VARIANT_ID
 #Path=http://127.0.0.1:8485/nvidia580xx-legacy/sysupdate/v2/
-Path=https://kdeup.taild6fd2b.ts.net/nvidia580xx-legacy/sysupdate/v2 # Change to match your update server address with '/nvidia580xx-legacy/sysupdate/v2'
+Path=https://kdeup.taild6fd2b.ts.net/nvidia580xx-legacy/sysupdate/v2/
 MatchPattern=kde-linux_@v.efi
 
 [Target]

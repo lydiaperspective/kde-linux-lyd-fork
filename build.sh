@@ -120,6 +120,7 @@ install -Dm755 run0-sudo-shim/target/release/run0-sudo-shim mkosi.extra/usr/bin/
 
 rm --recursive --force kde-linux-sysupdated
 git clone https://invent.kde.org/kde-linux/kde-linux-sysupdated
+sh patches/apply-sysupdated-patch.sh kde-linux-sysupdated
 DESTDIR=$PWD/mkosi.extra make --directory=kde-linux-sysupdated install
 
 rm --recursive --force etc-factory
