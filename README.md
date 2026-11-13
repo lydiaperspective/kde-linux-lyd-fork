@@ -4,7 +4,8 @@ SPDX-FileCopyrightText: Harald Sitter <sitter@kde.org>
 SPDX-FileCopyrightText: Nate Graham <nate@kde.org>
 -->
 
-<img width="256" height="256" alt="GitHubLogo" src="https://github.com/user-attachments/assets/9eef15fc-3392-4e54-92f1-55c6104f81f8" />
+<img width="256" height="256" alt="GitHubLogo" src="https://github.com/user-attachments/assets/9d1523b2-7b14-4a15-b484-eae48c02e968" />
+
 
 
 
