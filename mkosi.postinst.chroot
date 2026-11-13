@@ -201,5 +201,39 @@ rm -rf \
     /usr/lib/modules/*/kernel/net/rxrpc/rxrpc.ko.zst \
     /usr/lib/modules/*/kernel/fs/afs/kafs.ko.zst
 
+
+# Install configured AUR packages
+AUR_CONFIG="/etc/kde-linux/aur-packages.conf"
+
+if [[ -f "$AUR_CONFIG" ]]; then
+    source "$AUR_CONFIG"
+
+    if (( ${#AUR_PACKAGES[@]} > 0 )); then
+        echo "Installing configured AUR packages..."
+
+        AUR_USER="aurbuild"
+
+        useradd --create-home --user-group "$AUR_USER"
+
+        trap 'rm -f /etc/sudoers.d/aurbuild; userdel -r aurbuild || true' EXIT
+
+        cat > /etc/sudoers.d/aurbuild <<EOF
+aurbuild ALL=(root) NOPASSWD: /usr/bin/pacman
+EOF
+
+        chmod 0440 /etc/sudoers.d/aurbuild
+        visudo -cf /etc/sudoers.d/aurbuild
+
+        runuser -u "$AUR_USER" -- \
+            env HOME="/home/$AUR_USER" \
+            yay -S --needed --noconfirm "${AUR_PACKAGES[@]}"
+
+        rm -f /etc/sudoers.d/aurbuild
+        userdel -r "$AUR_USER"
+        trap - EXIT
+    fi
+fi
+
+
 /usr/lib/rebuild-efi
 mv -v ./*.efi /
