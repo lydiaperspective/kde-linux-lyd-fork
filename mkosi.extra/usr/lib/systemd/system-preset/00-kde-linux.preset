@@ -17,6 +17,8 @@ enable avahi-daemon.socket
 enable ModemManager.service
 enable NetworkManager.service
 enable pcscd.socket
+enable plasma-setup.service
+enable plasmalogin.service
 enable ratbagd.service
 enable snapper-cleanup.timer
 enable snapper-timeline.timer
