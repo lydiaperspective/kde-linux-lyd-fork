@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-FileCopyrightText: 2026 Lydia Hornbrook -->
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<zone>
+  <short>Public</short>
+  <description>Server zone: ports copied from the NixOS config.</description>
+
+  <!-- Services that firewalld already knows the ports for -->
+  <service name="ssh"/>           <!-- SSH (22) -->
+  <service name="cockpit"/>       <!-- Cockpit web UI (9090) -->
+  <service name="samba"/>         <!-- Samba file shares -->
+  <service name="mdns"/>          <!-- Avahi / mDNS discovery -->
+  <service name="ws-discovery"/>  <!-- wsdd: Windows network discovery -->
+
+  <port port="41641" protocol="udp"/>  <!-- Tailscale -->
+
+  <!-- ============ TCP ============ -->
+  <port port="80" protocol="tcp"/>     <!-- Caddy HTTP -->
+  <port port="443" protocol="tcp"/>    <!-- Caddy HTTPS -->
+  <port port="853" protocol="tcp"/>    <!-- DNS-over-TLS (Unbound, Android Private DNS) -->
+  <port port="2283" protocol="tcp"/>   <!-- Immich -->
+  <port port="3000" protocol="tcp"/>   <!-- Resumex -->
+  <port port="3001" protocol="tcp"/>   <!-- Music-DL browser -->
+  <port port="3010" protocol="tcp"/>   <!-- Affine -->
+  <port port="5000" protocol="tcp"/>   <!-- Downlinks -->
+  <port port="5050" protocol="tcp"/>   <!-- Job Scraper -->
+  <port port="6875" protocol="tcp"/>   <!-- Bookstack -->
+  <port port="8081" protocol="tcp"/>   <!-- Stremio container -->
+  <port port="8083" protocol="tcp"/>   <!-- Music-DL web UI -->
+  <port port="8085" protocol="tcp"/>   <!-- Filerise -->
+  <port port="8096" protocol="tcp"/>   <!-- Jellyfin -->
+  <port port="8100" protocol="tcp"/>   <!-- Minecraft BlueMap -->
+  <port port="8123" protocol="tcp"/>   <!-- Home Assistant -->
+  <port port="8384" protocol="tcp"/>   <!-- Syncthing web UI -->
+  <port port="8484" protocol="tcp"/>   <!-- Backup-UI -->
+  <port port="8485" protocol="tcp"/>   <!-- KDE update server -->
+  <port port="8787" protocol="tcp"/>   <!-- LibreNotes -->
+  <port port="9091" protocol="tcp"/>   <!-- Linkding -->
+  <port port="9443" protocol="tcp"/>   <!-- Portainer -->
+  <port port="11470" protocol="tcp"/>  <!-- Stremio HTTP -->
+  <port port="12470" protocol="tcp"/>  <!-- Stremio HTTPS -->
+  <port port="22000" protocol="tcp"/>  <!-- Syncthing sync -->
+  <port port="25565" protocol="tcp"/>  <!-- Minecraft Java -->
+
+  <!-- ============ UDP ============ -->
+  <port port="80" protocol="udp"/>     <!-- Caddy (HTTP/3) -->
+  <port port="443" protocol="udp"/>    <!-- Caddy (HTTP/3) -->
+  <port port="2283" protocol="udp"/>   <!-- Immich -->
+  <port port="3000" protocol="udp"/>   <!-- Resumex -->
+  <port port="3001" protocol="udp"/>   <!-- Music-DL browser -->
+  <port port="3010" protocol="udp"/>   <!-- Affine -->
+  <port port="5000" protocol="udp"/>   <!-- Downlinks -->
+  <port port="5050" protocol="udp"/>   <!-- Job Scraper -->
+  <port port="6875" protocol="udp"/>   <!-- Bookstack -->
+  <port port="7359" protocol="udp"/>   <!-- Jellyfin discovery -->
+  <port port="8081" protocol="udp"/>   <!-- Stremio container -->
+  <port port="8083" protocol="udp"/>   <!-- Music-DL web UI -->
+  <port port="8085" protocol="udp"/>   <!-- Filerise -->
+  <port port="8100" protocol="udp"/>   <!-- Minecraft BlueMap -->
+  <port port="8123" protocol="udp"/>   <!-- Home Assistant -->
+  <port port="8384" protocol="udp"/>   <!-- Syncthing web UI -->
+  <port port="8484" protocol="udp"/>   <!-- Backup-UI -->
+  <port port="8485" protocol="udp"/>   <!-- KDE update server -->
+  <port port="8787" protocol="udp"/>   <!-- LibreNotes -->
+  <port port="9091" protocol="udp"/>   <!-- Linkding -->
+  <port port="9443" protocol="udp"/>   <!-- Portainer -->
+  <port port="11470" protocol="udp"/>  <!-- Stremio HTTP -->
+  <port port="12470" protocol="udp"/>  <!-- Stremio HTTPS -->
+  <port port="21027" protocol="udp"/>  <!-- Syncthing discovery -->
+  <port port="22000" protocol="udp"/>  <!-- Syncthing sync (QUIC) -->
+  <port port="25565" protocol="udp"/>  <!-- Minecraft Java -->
+
+  <forward/>
+</zone>

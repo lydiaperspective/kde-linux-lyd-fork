@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-FileCopyrightText: 2026 Lydia Hornbrook -->
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<zone target="ACCEPT">
+  <short>Trusted</short>
+  <description>All network connections are accepted.</description>
+  <interface name="tailscale0"/>
+  <forward/>
+</zone>
