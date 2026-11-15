@@ -4,3 +4,7 @@
 enable tailscaled.service
 enable sshd.service
 enable podman.socket
+enable smb.service
+enable firewalld.service
+enable podman.socket
+enable podman-auto-update.service
