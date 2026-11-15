@@ -1,5 +1,78 @@
-# SPDX-FileCopyrightText: 2026 Lydia Hornbrook
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2023 Harald Sitter <sitter@kde.org>
 
-enable plasma-setup-live-system.service
+# Enable stuff we want
+# ====================
+# General things
+enable accounts-daemon.service
+
+# Make sure dbus broker is in use, not dbus-daemon
+disable dbus.service
+enable dbus-broker.service
+
+# Note that both avahi socket and service are needed. Client software on the system may only talk to the daemon but
+# fail to do so if the daemon is not up (avahi-browse for example just errors out instead of dbus-activating)
+enable avahi-daemon.service
+enable avahi-daemon.socket
+enable bluetooth.service
+enable cups.path
+enable cups.socket
+enable ModemManager.service
+enable NetworkManager.service
+enable pcscd.socket
+enable plasma-setup.service
 enable plasmalogin.service
+enable ratbagd.service
+enable snapper-cleanup.timer
+enable snapper-timeline.timer
+enable systemd-oomd.service
+enable systemd-zram-setup@zram0.service
+enable thermald.service
+enable tuned-ppd.service
+enable tuned.service
+
+# VM integration services
+# But not qemu-guest-agent.service; it gets activated automatically when needed
+enable vboxservice.service
+enable vmtoolsd.service
+
+# OpenQA integration
+enable run-extensions-openqa.mount
+
+# Multi-gpu support (doesn't affect single-GPU use cases)
+enable switcheroo-control.service
+
+# KDE-Linux-specific stuff
+# also one of ours but not prefixed with kde-linux- so others can use it too
+enable kde-linux-bootloader-visibility.service
+enable kde-linux-btrfs.service
+enable kde-linux-configure-firefox.path
+enable kde-linux-iw-set-regdomain.path
+enable kde-linux-openqa-setup.service
+enable kde-linux-powertop.service
+enable kde-linux-snapper-home-gc.path
+enable kde-linux-volatile-var-lib-flatpak.service
+enable kde-linux-sysupdated.socket
+enable kde-linux-opt-cleaner-mask.service
+enable plasma-setup-live-system.service
+
+# KMSCON
+# Disable getty first. We'll want kmsconvt@.service to take over autovt@.service (an alias) from getty
+disable getty@.service
+enable kmsconvt@.service
+
+# Disable stuff we don't want
+# ===========================
+
+# networkd - we use networkmanager
+disable systemd-networkd.service
+disable systemd-networkd-wait-online.service
+
+# Pacman - we don't do packages
+disable archlinux-keyring-wkd-sync.timer
+disable dirmngr@etc-pacman.d-gnupg.socket
+disable gpg-agent-browser@etc-pacman.d-gnupg.socket
+disable gpg-agent@etc-pacman.d-gnupg.socket
+disable gpg-agent-extra@etc-pacman.d-gnupg.socket
+disable gpg-agent-ssh@etc-pacman.d-gnupg.socket
+disable keyboxd@etc-pacman.d-gnupg.socket
