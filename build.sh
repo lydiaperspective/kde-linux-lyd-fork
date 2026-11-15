@@ -88,6 +88,8 @@ if [ -z "$BUILD_REPO" ]; then
   exit 1
 fi
 
+BUILD_REPO=${BUILD_REPO/archive.kde-linux.haraldsitter.eu/america.archive.pkgbuild.com}
+BUILD_REPO=https://mirror.csclub.uwaterloo.ca/archlinux
 # Create the KDE-pinned Arch mirrorlist.
 echo "Server = ${BUILD_REPO}/\$repo/os/\$arch" \
   > mkosi.sandbox/etc/pacman.d/mirrorlist
