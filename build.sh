@@ -65,8 +65,12 @@ rm --recursive --force kde-linux.cache/*.raw kde-linux.cache/*.iso kde-linux.cac
 
 # Start with the KDE Linux pacman configuration.
 cp /etc/pacman.conf.nolinux mkosi.sandbox/etc/pacman.conf
-sed -i "/^\[options\]/a DisableDownloadTimeout" mkosi.sandbox/etc/pacman.conf
-grep -q "^ParallelDownloads" mkosi.sandbox/etc/pacman.conf && sed -i "s/^ParallelDownloads.*/ParallelDownloads = 3/" mkosi.sandbox/etc/pacman.conf || sed -i "/^\[options\]/a ParallelDownloads = 3" mkosi.sandbox/etc/pacman.conf
+
+if grep -q "^ParallelDownloads" mkosi.sandbox/etc/pacman.conf; then
+    sed -i "s/^ParallelDownloads.*/ParallelDownloads = 3/" mkosi.sandbox/etc/pacman.conf
+else
+    sed -i "/^\[options\]/a ParallelDownloads = 3" mkosi.sandbox/etc/pacman.conf
+fi
 
 # Enable multilib and CachyOS.
 cat >> mkosi.sandbox/etc/pacman.conf <<'EOF'
@@ -90,12 +94,9 @@ if [ -z "$BUILD_REPO" ]; then
   exit 1
 fi
 
-BUILD_REPO=${BUILD_REPO/archive.kde-linux.haraldsitter.eu/america.archive.pkgbuild.com}
-BUILD_REPO=https://mirror.csclub.uwaterloo.ca/archlinux
-SNAP_DATE=$(echo "$BUILD_REPO" | sed -nE "s|.*snapshot-([0-9]{4})-([0-9]{2})-([0-9]{2})T.*|\1/\2/\3|p")
+SNAP_DATE=$(printf '%s\n' "$BUILD_REPO" | sed -nE 's|.*snapshot-([0-9]{4})-([0-9]{2})-([0-9]{2})T.*|\1/\2/\3|p')
 [ -n "$SNAP_DATE" ] || { echo "ERROR: no snapshot date in $BUILD_REPO" >&2; exit 1; }
-BUILD_REPO=https://archive.archlinux.org/repos/$SNAP_DATE
-&
+BUILD_REPO="https://archive.archlinux.org/repos/$SNAP_DATE"
 echo "Server = ${BUILD_REPO}/\$repo/os/\$arch" \
   > mkosi.sandbox/etc/pacman.d/mirrorlist
 
